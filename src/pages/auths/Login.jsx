@@ -1,7 +1,7 @@
 import { Button, Flex, Form, Input } from 'antd';
 import trello from '@/assets/images/trello.svg';
-import Google from '@/assets/images/google.svg';
 import { Link } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 
 const onFinish = (values) => {
   console.log('Success:', values);
@@ -9,6 +9,40 @@ const onFinish = (values) => {
 const onFinishFailed = (errorInfo) => {
   console.log('Failed:', errorInfo);
 };
+
+const handleGoogleSuccess = async (credentialResponse) => {
+  // 1. Rút cái ID Token từ Google trả về
+  const googleIdToken = credentialResponse.credential;
+  console.log(googleIdToken);
+
+  try {
+    // 2. Ném thẳng Token này xuống API C# của bạn
+    const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/Auth/google-login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ idToken: googleIdToken })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // 3. THÀNH CÔNG RỰC RỠ!
+      // Lấy cái JWT xịn xò của C# lưu vào localStorage
+      localStorage.setItem('token', data.token);
+
+      alert('Đăng nhập thành công!');
+      // Viết code chuyển hướng người dùng vào trang danh sách Board tại đây
+      // window.location.href = "/boards";
+    } else {
+      alert('Lỗi từ C#: ' + data.message);
+    }
+  } catch (error) {
+    console.log('Lỗi gọi API:', error);
+  }
+};
+
 const Login = () => (
   <Form
     name='basic'
@@ -52,15 +86,13 @@ const Login = () => (
       </Flex>
     </Form.Item>
     <Form.Item className='mb-2!'>
-      <button
-        onSubmit={() => {}}
-        className='hover:bg-primary border border-gray-100 w-full py-2 px-4 rounded-md font-bold cursor-pointer'
-      >
-        <Flex justify='center' align='center' gap={10}>
-          <img src={Google} alt='Google' width={20} height={20} />
-          <span>Google</span>
-        </Flex>
-      </button>
+      <GoogleLogin
+        className='bg-amber-50 w-full py-2 px-4 rounded-md font-bold cursor-pointer'
+        onSuccess={handleGoogleSuccess}
+        onError={() => {
+          console.log('Đăng nhập Google thất bại');
+        }}
+      />
     </Form.Item>
   </Form>
 );

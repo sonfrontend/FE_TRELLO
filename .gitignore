@@ -16,6 +16,10 @@ dist
 dist-ssr
 *.local
 
+# Bỏ qua các file biến môi trường
+.env
+.env.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
