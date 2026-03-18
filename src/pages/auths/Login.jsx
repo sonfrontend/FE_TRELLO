@@ -3,8 +3,27 @@ import trello from '@/assets/images/trello.svg';
 import { Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 
-const onFinish = (values) => {
-  console.log('Success:', values);
+const onFinish = async (values) => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/Auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(values)
+    });
+    const data = await response.json();
+    if (response.ok) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userInfo', JSON.stringify(data.userInfo));
+      alert('Đăng nhập thành công!');
+      // window.location.href = '/boards';
+    } else {
+      alert('Lỗi từ C#: ' + data.message);
+    }
+  } catch (error) {
+    console.error('Lỗi:', error);
+  }
 };
 const onFinishFailed = (errorInfo) => {
   console.log('Failed:', errorInfo);
@@ -31,6 +50,7 @@ const handleGoogleSuccess = async (credentialResponse) => {
       // 3. THÀNH CÔNG RỰC RỠ!
       // Lấy cái JWT xịn xò của C# lưu vào localStorage
       localStorage.setItem('token', data.token);
+      localStorage.setItem('userInfo', JSON.stringify(data.userInfo));
 
       alert('Đăng nhập thành công!');
       // Viết code chuyển hướng người dùng vào trang danh sách Board tại đây
@@ -60,11 +80,11 @@ const Login = () => (
       <img src={trello} alt='' />
       <h2 className='font-bold text-2xl'>Trello</h2>
     </div>
-    <Form.Item label='Tên đăng nhập' name='name' className='mb-2!'>
+    <Form.Item label='Tên đăng nhập' name='userName' className='mb-2!'>
       <Input className='w-full' style={{ width: '100%' }} />
     </Form.Item>
 
-    <Form.Item label='Mật khẩu' name='password' hasFeedback className='mb-2!'>
+    <Form.Item label='Mật khẩu' name='password' className='mb-2!'>
       <Input.Password className='w-full' style={{ width: '100%' }} />
     </Form.Item>
 
