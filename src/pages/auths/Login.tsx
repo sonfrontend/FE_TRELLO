@@ -1,7 +1,7 @@
 import { Button, Flex, Form, Input } from 'antd';
-import trello from '@/assets/images/trello.svg';
 import { Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
+import trello from '@/assets/images/trello.svg';
 
 const onFinish = async (values) => {
   try {
@@ -14,10 +14,10 @@ const onFinish = async (values) => {
     });
     const data = await response.json();
     if (response.ok) {
-      localStorage.setItem('token', data.token);
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
       localStorage.setItem('userInfo', JSON.stringify(data.userInfo));
-      alert('Đăng nhập thành công!');
-      // window.location.href = '/boards';
+      window.location.href = '/';
     } else {
       alert('Lỗi từ C#: ' + data.message);
     }
@@ -47,14 +47,10 @@ const handleGoogleSuccess = async (credentialResponse) => {
     const data = await response.json();
 
     if (response.ok) {
-      // 3. THÀNH CÔNG RỰC RỠ!
-      // Lấy cái JWT xịn xò của C# lưu vào localStorage
-      localStorage.setItem('token', data.token);
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
       localStorage.setItem('userInfo', JSON.stringify(data.userInfo));
-
-      alert('Đăng nhập thành công!');
-      // Viết code chuyển hướng người dùng vào trang danh sách Board tại đây
-      // window.location.href = "/boards";
+      window.location.href = '/';
     } else {
       alert('Lỗi từ C#: ' + data.message);
     }
@@ -107,7 +103,6 @@ const Login = () => (
     </Form.Item>
     <Form.Item className='mb-2!'>
       <GoogleLogin
-        className='bg-amber-50 w-full py-2 px-4 rounded-md font-bold cursor-pointer'
         onSuccess={handleGoogleSuccess}
         onError={() => {
           console.log('Đăng nhập Google thất bại');

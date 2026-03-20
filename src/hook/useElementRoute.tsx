@@ -1,19 +1,16 @@
 import AuthLayout from '@/layouts/AuthLayout';
 import { lazy } from 'react';
-import { useRoutes } from 'react-router-dom';
+import { Navigate, useRoutes } from 'react-router-dom';
 
 const Login = lazy(() => import('@/pages/auths/Login'));
 const Register = lazy(() => import('@/pages/auths/Register'));
 const MainLayout = lazy(() => import('@/layouts/MainLayout'));
+const ProtectedRoute = lazy(() => import('@/components/Route/ProtectedRoute'));
 
 // const children = <></>;
 
 export default function useRouteElements() {
   const routeElements = useRoutes([
-    {
-      path: '/',
-      element: <MainLayout></MainLayout>
-    },
     {
       path: '/login',
       element: (
@@ -29,6 +26,23 @@ export default function useRouteElements() {
           <Register></Register>
         </AuthLayout>
       )
+    },
+    {
+      path: '/',
+      element: <ProtectedRoute />, // Đặt anh bảo vệ đứng ngay cửa chính
+      children: [
+        // Bất cứ trang nào nhét vào cái mảng children này
+        // đều sẽ được rót vào cái thẻ <Outlet /> của ProtectedRoute
+        {
+          path: '', // Tương đương với link gốc '/'
+          element: <MainLayout />
+        }
+      ]
+    },
+
+    {
+      path: '*',
+      element: <Navigate to='/' replace /> // Đá về trang chủ (trang chủ lại bị Trạm gác xét hỏi tiếp)
     }
   ]);
   return routeElements;
