@@ -7,8 +7,6 @@ const Register = lazy(() => import('@/pages/auths/Register'));
 const MainLayout = lazy(() => import('@/layouts/MainLayout'));
 const ProtectedRoute = lazy(() => import('@/components/Route/ProtectedRoute'));
 
-// const children = <></>;
-
 export default function useRouteElements() {
   const routeElements = useRoutes([
     {
